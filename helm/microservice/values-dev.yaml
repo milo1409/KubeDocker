@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/milo1409/microservice
-  tag: "0ae928d"
+  tag: "99656a2"
   pullPolicy: IfNotPresent
 replicaCount: 1
 service:
