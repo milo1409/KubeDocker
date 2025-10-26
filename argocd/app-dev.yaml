@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservice-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/milo1409/KubeDocker.git
+    targetRevision: main
+    path: helm/microservice
+    helm:
+      valueFiles:
+        - values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

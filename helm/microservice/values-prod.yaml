@@ -1,0 +1,29 @@
+image:
+  tag: "prod"
+replicaCount: 3
+container:
+  env:
+    - name: ENV
+      value: "prod"
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1
+    memory: 1Gi
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: microservice.example.com
+      path: /
+  tls:
+    - secretName: microservice-tls
+      hosts:
+        - microservice.example.com

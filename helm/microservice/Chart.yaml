@@ -1,0 +1,6 @@
+apiVersion: v2
+name: microservice
+version: 0.1.0
+description: Microservicio desplegado con Helm
+appVersion: "1.0.0"
+type: application

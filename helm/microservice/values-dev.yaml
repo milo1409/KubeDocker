@@ -1,0 +1,19 @@
+image:
+  repository: ghcr.io/milo1409/microservice
+  tag: dev
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+
+container:
+  port: 8080
+  env:
+    - name: ENV
+      value: "dev"
+
+imagePullSecrets:
+  - name: ghcr-pull
