@@ -1,0 +1,74 @@
+version: 2.1
+
+orbs:
+  git: circleci/git@4.4.5
+
+jobs:
+  build_push_and_bump:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      VALUES_FILE: helm/microservice/values-dev.yaml
+      IMAGE_NAME: microservice
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Compute vars (owner, short-SHA, image repo)
+          command: |
+            OWNER_LC="$(echo "${CIRCLE_PROJECT_USERNAME}" | tr '[:upper:]' '[:lower:]')"
+            SHORT_SHA="${CIRCLE_SHA1:0:7}"
+            IMAGE_REPO="ghcr.io/${GHCR_USERNAME:-$OWNER_LC}/${IMAGE_NAME}"
+            echo "export OWNER_LC=${OWNER_LC}"   >> $BASH_ENV
+            echo "export SHORT_SHA=${SHORT_SHA}" >> $BASH_ENV
+            echo "export IMAGE_REPO=${IMAGE_REPO}" >> $BASH_ENV
+            source $BASH_ENV
+            echo "IMAGE_REPO=${IMAGE_REPO}"
+            echo "SHORT_SHA=${SHORT_SHA}"
+
+      - run:
+          name: Login to GHCR
+          command: |
+            echo "${GHCR_PAT}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+
+      - run:
+          name: Build & push Docker image
+          command: |
+            source $BASH_ENV
+            docker build -t "${IMAGE_REPO}:${SHORT_SHA}" ./app
+            docker push "${IMAGE_REPO}:${SHORT_SHA}"
+
+      - run:
+          name: Install yq
+          command: |
+            curl -L https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -o /usr/local/bin/yq
+            chmod +x /usr/local/bin/yq
+            yq --version
+
+      - run:
+          name: Update Helm values (image repo + tag)
+          command: |
+            source $BASH_ENV
+            yq -i ".image.repository = \"${IMAGE_REPO}\"" "${VALUES_FILE}"
+            yq -i ".image.tag        = \"${SHORT_SHA}\""  "${VALUES_FILE}"
+            echo "-----"; cat "${VALUES_FILE}"; echo "-----"
+
+      - run:
+          name: Commit & push manifest changes
+          command: |
+            git config user.name  "${GIT_USER}"
+            git config user.email "${GIT_USER}@users.noreply.github.com"
+            git add "${VALUES_FILE}"
+            git commit -m "ci(circleci): image -> ${IMAGE_REPO}:${SHORT_SHA}" || echo "No changes"
+            git push "https://${GIT_USER}:${GIT_PAT}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git" HEAD:${CIRCLE_BRANCH}
+
+workflows:
+  ci:
+    jobs:
+      - build_push_and_bump:
+          filters:
+            branches:
+              only: main
