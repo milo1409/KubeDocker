@@ -8,5 +8,5 @@ def read_root():
     return{
         "service": os.getenv("SERVICE_NAME","microservice"),
         "env": os.getenv("ENV", "dev"),
-        "message": "OK Prueba 9"
+        "message": "OK Todo fantastico"
     }
