@@ -39,10 +39,13 @@ jobs:
             docker push "${IMAGE_REPO}:${SHORT_SHA}"
 
       - run:
-          name: Install yq
+          name: Install yq (user space)
           command: |
-            curl -L https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -o /usr/local/bin/yq
-            chmod +x /usr/local/bin/yq
+            mkdir -p "$HOME/.local/bin"
+            curl -L https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -o "$HOME/.local/bin/yq"
+            chmod +x "$HOME/.local/bin/yq"
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
             yq --version
 
       - run:
