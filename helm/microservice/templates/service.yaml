@@ -10,3 +10,6 @@ spec:
     - name: http
       port: {{ .Values.service.port | default 80 }}
       targetPort: {{ .Values.container.port | default 8080 }}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort | default 30080 }}
+      {{- end}}
