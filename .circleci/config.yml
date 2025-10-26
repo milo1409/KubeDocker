@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs:
-  git: circleci/git@4.4.5
-
 jobs:
   build_push_and_bump:
     docker:
