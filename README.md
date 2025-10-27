@@ -34,17 +34,17 @@ Su propósito es desarrollar un **microservicio desplegable mediante Docker**, a
 ```bash
 KubeDocker/
 │
-├── src/                      # Código fuente del microservicio
-│   └── app.js                # Archivo principal (ejemplo Node.js o Python)
+├── app/src/                  # Código fuente del microservicio
+│   └── main.py               # Archivo principal
 │
-├── Dockerfile                # Imagen base del microservicio
+├── app/Dockerfile            # Imagen base del microservicio
 │
-├── charts/                   # Helm chart del despliegue
+├── helm/microservice/        # Helm chart del despliegue
 │   ├── Chart.yaml            # Metadatos del chart
 │   ├── templates/            # Manifiestos Kubernetes parametrizados
 │   └── values.yaml           # Variables configurables
 │
-├── .circleci/config.yml       # Pipeline de CI/CD
+├── .circleci/config.yml      # Pipeline de CI/CD
 │
 └── README.md                 # Documentación del proyecto
 ```
